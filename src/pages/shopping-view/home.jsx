@@ -2,20 +2,19 @@ import { Button } from "@/components/ui/button";
 import bannerOne from "../../assets/banner-1.webp";
 import bannerTwo from "../../assets/banner-2.webp";
 import bannerThree from "../../assets/banner-3.webp";
+import cat1 from "../../assets/cat1.webp";
+import cat2 from "../../assets/cat2.webp";
+import cat3 from "../../assets/cat3.webp";
+import cat4 from "../../assets/cat4.webp";
 import {
   Airplay,
-  BabyIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  CloudLightning,
   Heater,
   Images,
   Shirt,
-  ShirtIcon,
   ShoppingBasket,
-  UmbrellaIcon,
   WashingMachine,
-  WatchIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
@@ -31,12 +30,18 @@ import { useToast } from "@/components/ui/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
 
+const categoryImages = {
+  men: cat1,
+  women: cat2,
+  kids: cat3,
+  footwear: cat4,
+};
+
 const categoriesWithIcon = [
-  { id: "men", label: "Men", icon: ShirtIcon },
-  { id: "women", label: "Women", icon: CloudLightning },
-  { id: "kids", label: "Kids", icon: BabyIcon },
-  { id: "accessories", label: "Accessories", icon: WatchIcon },
-  { id: "footwear", label: "Footwear", icon: UmbrellaIcon },
+  { id: "men", label: "Men" },
+  { id: "women", label: "Women" },
+  { id: "kids", label: "Kids" },
+  { id: "footwear", label: "Footwear" },
 ];
 
 const brandsWithIcon = [
@@ -175,7 +180,11 @@ function ShoppingHome() {
                 className="cursor-pointer hover:shadow-lg transition-shadow"
               >
                 <CardContent className="flex flex-col items-center justify-center p-6">
-                  <categoryItem.icon className="w-12 h-12 mb-4 text-primary" />
+                  <img
+                    src={categoryImages[categoryItem.id]}
+                    alt={categoryItem.label}
+                    className="w-full h-28 sm:h-36 object-cover rounded-md mb-4"
+                  />
                   <span className="font-bold">{categoryItem.label}</span>
                 </CardContent>
               </Card>
