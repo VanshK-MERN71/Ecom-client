@@ -54,7 +54,7 @@ function MenuItems() {
       {shoppingViewHeaderMenuItems.map((menuItem) => (
         <Label
           onClick={() => handleNavigate(menuItem)}
-          className="text-sm font-medium cursor-pointer"
+          className="text-sm font-medium cursor-pointer nav-link"
           key={menuItem.id}
         >
           {menuItem.label}
@@ -108,13 +108,13 @@ function HeaderRightContent() {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar className="bg-black">
+          <Avatar className="bg-black cursor-pointer transition-transform duration-200 hover:scale-105">
             <AvatarFallback className="bg-black text-white font-extrabold">
               {user?.userName[0].toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="right" className="w-56">
+        <DropdownMenuContent side="right" className="w-56 animate-scale-in">
           <DropdownMenuLabel>Logged in as {user?.userName}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => navigate("/shop/account")}>
@@ -136,10 +136,10 @@ function ShoppingHeader() {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
+    <header className="fixed top-0 z-40 w-full border-b bg-[#E8BAA3] animate-fade-in-down">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
-        <Link to="/shop/home" className="flex items-center gap-2">
-          <HousePlug className="h-6 w-6" />
+        <Link to="/shop/home" className="flex items-center gap-2 group">
+          <HousePlug className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" />
           <span className="font-bold">Ecommerce</span>
         </Link>
         <Sheet>

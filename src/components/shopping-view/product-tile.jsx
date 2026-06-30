@@ -9,13 +9,13 @@ function ShoppingProductTile({
   handleAddtoCart,
 }) {
   return (
-    <Card className="w-full max-w-sm mx-auto">
+    <Card className="w-full max-w-sm mx-auto overflow-hidden bg-[#FAFAFA] border-gray-100/80 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5">
       <div onClick={() => handleGetProductDetails(product?._id)}>
-        <div className="relative">
+        <div className="relative image-zoom">
           <img
             src={product?.image}
             alt={product?.title}
-            className="w-full h-[300px] object-cover rounded-t-lg"
+            className="w-full h-[300px] object-cover"
           />
           {product?.totalStock === 0 ? (
             <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
@@ -32,7 +32,7 @@ function ShoppingProductTile({
           ) : null}
         </div>
         <CardContent className="p-4">
-          <h2 className="text-xl font-bold mb-2">{product?.title}</h2>
+          <h2 className="text-xl font-bold mb-2 truncate">{product?.title}</h2>
           <div className="flex justify-between items-center mb-2">
             <span className="text-[16px] text-muted-foreground">
               {categoryOptionsMap[product?.category]}
@@ -59,13 +59,13 @@ function ShoppingProductTile({
       </div>
       <CardFooter>
         {product?.totalStock === 0 ? (
-          <Button className="w-full opacity-60 cursor-not-allowed">
+          <Button className="w-full opacity-60 cursor-not-allowed rounded-lg btn-press">
             Out Of Stock
           </Button>
         ) : (
           <Button
             onClick={() => handleAddtoCart(product?._id, product?.totalStock)}
-            className="w-full"
+            className="w-full rounded-lg btn-press"
           >
             Add to cart
           </Button>

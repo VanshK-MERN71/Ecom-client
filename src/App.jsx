@@ -30,7 +30,7 @@
     const dispatch = useDispatch();
   
     useEffect(() => {
-      //call middleware in backend route is http://localhost:5000/api/auth/check-auth
+      //call middleware in backend route uses API_URL from config
       dispatch(checkAuth());
     }, [dispatch]);
 

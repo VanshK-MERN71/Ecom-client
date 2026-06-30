@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_URL } from "../../../config/api";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const initialState = {
@@ -10,7 +11,7 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({ userId, productId, quantity }) => {
     const response = await axios.post(
-      "https://ecom-server-u1z5.onrender.com/api/shop/cart/add",
+      `${API_URL}/api/shop/cart/add`,
       {
         userId,
         productId,
@@ -26,7 +27,7 @@ export const fetchCartItems = createAsyncThunk(
   "cart/fetchCartItems",
   async (userId) => {
     const response = await axios.get(
-      `https://ecom-server-u1z5.onrender.com/api/shop/cart/get/${userId}`
+      `${API_URL}/api/shop/cart/get/${userId}`
     );
 
     return response.data;
@@ -37,7 +38,7 @@ export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
   async ({ userId, productId }) => {
     const response = await axios.delete(
-      `https://ecom-server-u1z5.onrender.com/api/shop/cart/${userId}/${productId}`
+      `${API_URL}/api/shop/cart/${userId}/${productId}`
     );
 
     return response.data;
@@ -48,7 +49,7 @@ export const updateCartQuantity = createAsyncThunk(
   "cart/updateCartQuantity",
   async ({ userId, productId, quantity }) => {
     const response = await axios.put(
-      `https://ecom-server-u1z5.onrender.com/api/shop/cart/update-cart`,
+      `${API_URL}/api/shop/cart/update-cart`,
       {
         userId,
         productId,
