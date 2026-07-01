@@ -20,7 +20,7 @@ function UserCartWrapper({ cartItems, setOpenCartSheet }) {
       : 0;
 
   return (
-    <SheetContent className="sm:max-w-md flex flex-col h-full">
+    <SheetContent className="sm:max-w-md flex flex-col h-full bg-gradient-to-b from-[#e8baa3] via-[#eed5c5] to-[#f5e6db]">
       <SheetHeader>
         <SheetTitle>Your Cart</SheetTitle>
       </SheetHeader>

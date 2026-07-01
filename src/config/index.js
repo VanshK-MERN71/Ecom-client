@@ -62,7 +62,7 @@ export const addProductFormElements = [
       { id: "women", label: "Women" },
       { id: "kids", label: "Kids" },
       { id: "footwear", label: "Footwear" },
-      { id: "electronics", label: "Electronic Cart" },
+      { id: "electronics", label: "Electronic" },
     ],
   },
   {
@@ -134,7 +134,7 @@ export const shoppingViewHeaderMenuItems = [
   },
   {
     id: "electronics",
-    label: "Electronic Cart",
+    label: "Electronic",
     path: "/shop/listing",
   },
   {
@@ -149,7 +149,7 @@ export const categoryOptionsMap = {
   women: "Women",
   kids: "Kids",
   footwear: "Footwear",
-  electronics: "Electronic Cart",
+  electronics: "Electronic",
 };
 
 export const brandOptionsMap = {
@@ -167,7 +167,7 @@ export const filterOptions = {
     { id: "women", label: "Women" },
     { id: "kids", label: "Kids" },
     { id: "footwear", label: "Footwear" },
-    { id: "electronics", label: "Electronic Cart" },
+    { id: "electronics", label: "Electronic" },
   ],
   brand: [
     { id: "nike", label: "Nike" },

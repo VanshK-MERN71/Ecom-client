@@ -1,7 +1,4 @@
 import { Button } from "@/components/ui/button";
-import bannerOne from "../../assets/banner-1.webp";
-import bannerTwo from "../../assets/banner-2.webp";
-import bannerThree from "../../assets/banner-3.webp";
 import cat1 from "../../assets/cat1.webp";
 import cat2 from "../../assets/cat2.webp";
 import cat3 from "../../assets/cat3.webp";
@@ -18,7 +15,7 @@ import {
   ChevronRightIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -32,6 +29,7 @@ import { useToast } from "@/components/ui/use-toast";
 import ProductDetailsDialog from "@/components/shopping-view/product-details";
 import { getFeatureImages } from "@/store/common-slice";
 import Footer from "@/components/admin-view/footer";
+import { optimizeImageUrl } from "@/utils/cloudinary";
 
 const categoryImages = {
   men: cat1,
@@ -46,7 +44,7 @@ const categoriesWithIcon = [
   { id: "women", label: "Women" },
   { id: "kids", label: "Kids" },
   { id: "footwear", label: "Footwear" },
-  { id: "electronics", label: "Electronic Cart" },
+  { id: "electronics", label: "Electronic" },
 ];
 
 const brandsWithIcon = [
@@ -72,6 +70,16 @@ function ShoppingHome() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const currentSlideRef = useRef(currentSlide);
+  currentSlideRef.current = currentSlide;
+  const timerRef = useRef(null);
+  const isHoveringRef = useRef(false);
+  const isTransitioningRef = useRef(false);
+  const touchStartRef = useRef(null);
+  const preloadedRef = useRef(new Set());
+
+  const slideCount = featureImageList?.length ?? 0;
 
   function handleNavigateToListingPage(getCurrentItem, section) {
     sessionStorage.removeItem("filters");
@@ -104,17 +112,61 @@ function ShoppingHome() {
     });
   }
 
+  const goToSlide = useCallback((index) => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+    setCurrentSlide((index + slideCount) % slideCount);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        isTransitioningRef.current = false;
+      });
+    });
+  }, [slideCount]);
+
+  const nextSlide = useCallback(() => {
+    goToSlide(currentSlideRef.current + 1);
+  }, [goToSlide]);
+
+  const prevSlide = useCallback(() => {
+    goToSlide(currentSlideRef.current - 1);
+  }, [goToSlide]);
+
+  const startAutoplay = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
+      if (!isHoveringRef.current) {
+        setCurrentSlide((prev) => (prev + 1) % slideCount);
+      }
+    }, 2000);
+  }, [slideCount]);
+
   useEffect(() => {
     if (productDetails !== null) setOpenDetailsDialog(true);
   }, [productDetails]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prevSlide) => (prevSlide + 1) % featureImageList.length);
-    }, 15000);
+    if (slideCount < 2) return;
+    startAutoplay();
+    return () => clearInterval(timerRef.current);
+  }, [slideCount, startAutoplay]);
 
-    return () => clearInterval(timer);
-  }, [featureImageList]);
+  useEffect(() => {
+    if (slideCount < 2) return;
+    const urls = [
+      (currentSlide - 1 + slideCount) % slideCount,
+      (currentSlide + 1) % slideCount,
+    ].map((i) => featureImageList[i]?.image).filter(Boolean);
+    urls.forEach((url) => {
+      if (!preloadedRef.current.has(url)) {
+        preloadedRef.current.add(url);
+        const link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "image";
+        link.href = optimizeImageUrl(url);
+        document.head.appendChild(link);
+      }
+    });
+  }, [currentSlide, featureImageList, slideCount]);
 
   useEffect(() => {
     dispatch(
@@ -125,53 +177,103 @@ function ShoppingHome() {
     );
   }, [dispatch]);
 
-  console.log(productList, "productList");
-
   useEffect(() => {
     dispatch(getFeatureImages());
   }, [dispatch]);
 
-  return (
-    <div className="flex flex-col min-h-screen bg-[#E8BAA3]">
-      <div className="relative w-full h-[600px] overflow-hidden animate-fade-in">
-        {featureImageList && featureImageList.length > 0
-          ? featureImageList.map((slide, index) => (
-              <img
-                src={slide?.image}
-                key={index}
-                className={`${
-                  index === currentSlide ? "opacity-100" : "opacity-0"
-                } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000`}
-              />
-            ))
-          : null}
+  const handleTouchStart = useCallback((e) => {
+    touchStartRef.current = e.touches[0].clientX;
+    if (timerRef.current) clearInterval(timerRef.current);
+  }, []);
+
+  const handleTouchMove = useCallback((e) => {
+    if (touchStartRef.current === null) return;
+    const delta = e.touches[0].clientX - touchStartRef.current;
+    if (Math.abs(delta) > 50) {
+      (delta > 0 ? prevSlide : nextSlide)();
+      touchStartRef.current = null;
+    }
+  }, [nextSlide, prevSlide]);
+
+  const handleTouchEnd = useCallback(() => {
+    touchStartRef.current = null;
+    if (!isHoveringRef.current) startAutoplay();
+  }, [startAutoplay]);
+
+  const handleMouseEnter = useCallback(() => {
+    isHoveringRef.current = true;
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    isHoveringRef.current = false;
+  }, []);
+
+  const slideIndex = useMemo(() => {
+    if (slideCount < 3) return {};
+    const prev = (currentSlide - 1 + slideCount) % slideCount;
+    const next = (currentSlide + 1) % slideCount;
+    return { prev, next };
+  }, [currentSlide, slideCount]);
+
+  const carousel = useMemo(() => {
+    if (!featureImageList || slideCount === 0) return null;
+    return (
+      <div
+        className="relative w-full min-h-[250px] sm:min-h-[350px] md:min-h-[450px] lg:h-[600px] overflow-hidden bg-muted"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Featured products"
+      >
+        {featureImageList.map((slide, index) => {
+          const isActive = index === currentSlide;
+          const isAdjacent = slideCount >= 3 && (index === slideIndex.prev || index === slideIndex.next);
+          return (
+            <img
+              src={optimizeImageUrl(slide?.image)}
+              key={slide?._id || index}
+              alt={`Slide ${index + 1}`}
+              decoding="async"
+              fetchpriority={isActive ? "high" : "low"}
+              loading={isActive || isAdjacent ? "eager" : "lazy"}
+              className={`${
+                isActive ? "opacity-100" : "opacity-0"
+              } absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 bg-muted`}
+              style={{
+                willChange: "opacity",
+                contentVisibility: isActive ? "visible" : "auto",
+              }}
+              aria-hidden={!isActive}
+            />
+          );
+        })}
         <Button
           variant="outline"
           size="icon"
-          onClick={() =>
-            setCurrentSlide(
-              (prevSlide) =>
-                (prevSlide - 1 + featureImageList.length) %
-                featureImageList.length
-            )
-          }
-          className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/80 transition-all duration-200 hover:bg-white hover:scale-105"
+          onClick={prevSlide}
+          className="absolute top-1/2 left-4 -translate-y-1/2 bg-white/80 transition-all duration-200 hover:bg-white hover:scale-105 z-10"
         >
           <ChevronLeftIcon className="w-4 h-4" />
         </Button>
         <Button
           variant="outline"
           size="icon"
-          onClick={() =>
-            setCurrentSlide(
-              (prevSlide) => (prevSlide + 1) % featureImageList.length
-            )
-          }
-          className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/80 transition-all duration-200 hover:bg-white hover:scale-105"
+          onClick={nextSlide}
+          className="absolute top-1/2 right-4 -translate-y-1/2 bg-white/80 transition-all duration-200 hover:bg-white hover:scale-105 z-10"
         >
           <ChevronRightIcon className="w-4 h-4" />
         </Button>
       </div>
+    );
+  }, [featureImageList, currentSlide, slideCount, slideIndex, nextSlide, prevSlide, handleTouchStart, handleTouchMove, handleTouchEnd, handleMouseEnter, handleMouseLeave]);
+
+  return (
+    <div className="flex flex-col bg-[#E8BAA3]">
+      {carousel}
       <section className="py-12 reveal" ref={sectionRefs[0]}>
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8 animate-fade-in-down">

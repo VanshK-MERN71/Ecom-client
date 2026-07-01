@@ -96,7 +96,7 @@ function ShoppingCheckout() {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-gradient-to-b from-[#e8baa3] via-[#eed5c5] to-[#f5e6db]">
       <div className="relative h-[300px] w-full overflow-hidden">
         <img src={img} className="h-full w-full object-cover object-center" />
       </div>
