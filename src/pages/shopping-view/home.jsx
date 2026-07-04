@@ -44,7 +44,7 @@ const categoriesWithIcon = [
   { id: "women", label: "Women" },
   { id: "kids", label: "Kids" },
   { id: "footwear", label: "Footwear" },
-  { id: "electronics", label: "Electronic" },
+  { id: "electronics", label: "Electronic Cart" },
 ];
 
 const brandsWithIcon = [
@@ -219,7 +219,7 @@ function ShoppingHome() {
     if (!featureImageList || slideCount === 0) return null;
     return (
       <div
-        className="relative w-full min-h-[250px] sm:min-h-[350px] md:min-h-[450px] lg:h-[600px] overflow-hidden bg-muted"
+        className="relative w-full min-h-[250px] sm:min-h-[350px] md:min-h-[4 50px] lg:h-[600px] overflow-hidden bg-muted"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
